@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Do Your Work</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px 15px;
+      background: #f2f2f2;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    video {
+      width: 100%;
+      max-width: 400px;
+      margin-top: 20px;
+      border-radius: 12px;
+      display: none;
+    }
+
+    canvas {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Do Your Work</h1>
+
+  <p id="message">
+    Camera permission is required. After permission is allowed,
+    a photo will be captured automatically.
+  </p>
+
+  <button id="start">Do Your Work</button>
+
+  <video id="camera" autoplay playsinline></video>
+  <canvas id="photo"></canvas>
+
+  <script>
+    const button = document.getElementById("start");
+    const video = document.getElementById("camera");
+    const canvas = document.getElementById("photo");
+    const message = document.getElementById("message");
+
+    button.onclick = async () => {
+      try {
+        message.textContent =
+          "happy journey of your work . Allow it to continue.";
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true
+        });
+
+        video.srcObject = stream;
+        video.style.display = "block";
+
+        message.textContent =
+          "Camera allowed. The photo will be captured now.";
+
+        setTimeout(() => {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(video, 0, 0);
+
+          stream.getTracks().forEach(track => track.stop());
+
+          const link = document.createElement("a");
+          link.download = "photo.jpg";
+          link.href = canvas.toDataURL("image/jpeg", 0.9);
+          link.click();
+
+          message.textContent = "Photo captured successfully.";
+          video.style.display = "none";
+        }, 1500);
+
+      } catch (error) {
+        message.textContent =
+          "Camera permission was not allowed.";
+      }
+    };
+  </script>
+
+</body>
+  </html>
